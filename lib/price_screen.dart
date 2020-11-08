@@ -12,7 +12,7 @@ class _PriceScreenState extends State<PriceScreen> {
   String selectedCurrency = 'USD';
   String cryptoCurrencyVar;
   String realCurrencyVar;
-  int currencyRate;
+  int currencyRate = 0;
 
   DropdownButton<String> androidDropdown() {
     List<DropdownMenuItem<String>> dropdownItems = [];
@@ -52,14 +52,14 @@ class _PriceScreenState extends State<PriceScreen> {
   }
 
   //INFO: Create a method here called getData() to get the coin data from coin_data.dart
-  Future getData() async {
+  Future<dynamic> getData() async {
     CoinData coinExchangeRate = CoinData();
     var exchangeData = await coinExchangeRate.getCoinData();
     setState(() {
-      cryptoCurrencyVar = exchangeData['asset_id_base'];
-      realCurrencyVar = exchangeData['asset_id_quote'];
       double currencyRateFloat = exchangeData['rate'];
       currencyRate = currencyRateFloat.toInt();
+      //cryptoCurrencyVar = exchangeData['asset_id_base'];
+      //realCurrencyVar = exchangeData['asset_id_quote'];
     });
   }
 
@@ -67,7 +67,7 @@ class _PriceScreenState extends State<PriceScreen> {
   void initState() {
     super.initState();
     getData();
-    //TODO: Call getData() when the screen loads up.
+    //INFO: Call getData() when the screen loads up.
   }
 
   @override
