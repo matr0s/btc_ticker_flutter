@@ -10,8 +10,9 @@ class PriceScreen extends StatefulWidget {
 
 class _PriceScreenState extends State<PriceScreen> {
   String selectedCurrency = 'AUD';
-  String cryptoCurrency = 'BTC';
+  List value = ['?', '?', '?'];
 
+  //DropDown for Android version
   DropdownButton<String> androidDropdown() {
     List<DropdownMenuItem<String>> dropdownItems = [];
     for (String currency in currenciesList) {
@@ -21,7 +22,6 @@ class _PriceScreenState extends State<PriceScreen> {
       );
       dropdownItems.add(newItem);
     }
-
     return DropdownButton<String>(
       value: selectedCurrency,
       items: dropdownItems,
@@ -34,12 +34,12 @@ class _PriceScreenState extends State<PriceScreen> {
     );
   }
 
+// Cupertino Data Picker is here
   CupertinoPicker iOSPicker() {
     List<Text> pickerItems = [];
     for (String currency in currenciesList) {
       pickerItems.add(Text(currency));
     }
-
     return CupertinoPicker(
       backgroundColor: Colors.lightBlue,
       itemExtent: 32.0,
@@ -53,19 +53,34 @@ class _PriceScreenState extends State<PriceScreen> {
     );
   }
 
-  String value = '?';
+  // Widget for CryptoCards generation in the column
+  Widget cryptoListGen() {
+    List<Widget> cardList = [];
+    for (var i = 0; i < cryptoList.length; i++) {
+      var newCryptoCard = CryptoCard(
+        value: value[i],
+        selectedCurrency: selectedCurrency,
+        cryptoCurrency: cryptoList[i],
+      );
 
-  //TODO 7: Figure out a way of displaying a '?' on screen while we're waiting for the price data to come back. Hint: You'll need a ternary operator.
+      cardList.add(newCryptoCard);
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: cardList,
+    );
+  }
 
-  //TODO 6: Update this method to receive a Map containing the crypto:price key value pairs. Then use that map to update the CryptoCards.
+  // getData return Map with currency rates depends on selected real Currency
   void getData() async {
     try {
       Map data = await CoinData().getCoinData(selectedCurrency);
       print(data);
-      setState(() {
-        //value = data.toStringAsFixed(0);
-        value = data[CryptoCard()].toStringAsFixed(0);
-      });
+      for (var i = 0; i < data.length; i++) {
+        setState(() {
+          value[i] = data[cryptoList[i]].toStringAsFixed(0);
+        });
+      }
     } catch (e) {
       print(e);
     }
@@ -75,9 +90,8 @@ class _PriceScreenState extends State<PriceScreen> {
   void initState() {
     super.initState();
     getData();
+    cryptoListGen();
   }
-
-  //TODO: For bonus points, create a method that loops through the cryptoList and generates a CryptoCard for each.
 
   @override
   Widget build(BuildContext context) {
@@ -89,29 +103,7 @@ class _PriceScreenState extends State<PriceScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          //INFO 3: You'll need to use a Column Widget to contain the three CryptoCards.
-          //INFO 1: Refactor this Padding Widget into a separate Stateless Widget called CryptoCard, so we can create 3 of them, one for each cryptocurrency.
-          //INFO 2: You'll need to able to pass the selectedCurrency, value and cryptoCurrency to the constructor of this CryptoCard Widget.
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              CryptoCard(
-                value: value,
-                selectedCurrency: selectedCurrency,
-                cryptoCurrency: cryptoList[0],
-              ),
-              CryptoCard(
-                value: value,
-                selectedCurrency: selectedCurrency,
-                cryptoCurrency: cryptoList[1],
-              ),
-              CryptoCard(
-                value: value,
-                selectedCurrency: selectedCurrency,
-                cryptoCurrency: cryptoList[2],
-              ),
-            ],
-          ),
+          cryptoListGen(),
           Container(
             height: 150.0,
             alignment: Alignment.center,
